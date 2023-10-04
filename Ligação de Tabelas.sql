@@ -1,0 +1,94 @@
+CREATE DATABASE IF NOT EXISTS AulaLigacao;
+/*script para ser utilizado para aula de ligação de tabela*/
+USE AulaLigacao;
+/* CRIAR TABELA */
+CREATE TABLE IF NOT EXISTS FORNECEDOR (
+IDFORNECEDOR INT,
+NOME VARCHAR(45),
+ENDERECO VARCHAR(45),
+TELEFONE INT,
+CIDADE VARCHAR(20),
+EMAIL VARCHAR(25),
+PRIMARY KEY (IDFORNECEDOR)
+);
+
+CREATE TABLE IF NOT EXISTS FAMILIA (
+IDFAMILIA INT AUTO_INCREMENT,
+DESCRICAO VARCHAR(45),
+PRIMARY KEY (IDFAMILIA)
+);
+CREATE TABLE IF NOT EXISTS PRODUTO (
+IDPRODUTO INT,
+DESCRICAO VARCHAR(45),
+PRECO DECIMAL(7,2),
+UNIDADE VARCHAR(10),
+IDFORNECEDOR INT,
+IDFAMILIA INT,
+QTDE INT,
+PRIMARY KEY (IDPRODUTO),
+foreign key(IDFAMILIA) references FAMILIA(IDFAMILIA)
+ON DELETE CASCADE ON UPDATE CASCADE, 
+FOREIGN KEY (IDFORNECEDOR) REFERENCES FORNECEDOR(IDFORNECEDOR)
+ON DELETE CASCADE ON UPDATE CASCADE
+/* na execução do delete ou update a ação será cascata
+  se tiver registro na tabela filha será eliminado ou atualizado  */
+);
+
+
+
+INSERT INTO FORNECEDOR VALUES
+(1,'PAPEL RECICLADO','RUA BRASIL,1000', 4441212, 'BRAGANÇA PAULISTA',
+ 'RECI@GMAIL.COM'),
+(2,'CASA BAHIA','RUA DO MERCADO,200', 40338787, 'BRAGANÇA PAULISTA',
+ 'CASABAHIA@GMAIL.COM'),
+(3,'LOJA CEM','RUA DO COMERCIO,9000', 40334455, 'BRAGANÇA PAULISTA',
+ 'LOJACEM@GMAIL.COM'),
+(4,'MAGAZINE LUIZA','RUA OIER PIMENTEL,500', 40331212, 'BRAGANÇA PAULISTA',
+ 'LUIZA@GMAIL.COM'),
+ (9,'MERCADO LIVRE','AV PAULISTA,1000', 23121212, 'SÃO PAULO',
+ 'MC@GMAIL.COM');
+ 
+ INSERT INTO FAMILIA VALUES
+(1,'Linha Branca'),
+(2, 'Informática'),
+(3,'diversos'),
+(4,'linha carro');
+
+INSERT INTO PRODUTO VALUES
+(100,'FOGAO', 800.50, 'PC',2,1,10),
+(110,'GELADEIRA', 2000.70, 'PC',2,1,30),
+(150,'FOGAO COOKTOP', 1300.40, 'PC',3,1,24),
+(160,'AR CONDICIONADO', 1800, 'PC',4,3,3),
+(170,'IMPRESSORA', 2800, 'PC',2,2,5),
+(161,'NOTEBOOK', 3400, 'PC',2,2,13),
+(180,'ASPIRADOR DE PO', 256, 'PC',1,1,7),
+(181,'TV', 3800, 'PC',1,3,3),
+(190,'TV', 3900, 'PC',2,3,4);
+
+select * from FORNECEDOR;
+select * from FAMILIA;
+select * from PRODUTO;
+
+#exibir dados de produto e familia
+select PRODUTO.IDPRODUTO, PRODUTO.DESCRICAO, FAMILIA.IDFAMILIA, FAMILIA.DESCRICAO from PRODUTO inner join FAMILIA on PRODUTO.IDFAMILIA = FAMILIA.IDFAMILIA;
+
+#mesma coisa de jeitos diferentes
+select P.IDPRODUTO, P.DESCRICAO, F.IDFAMILIA, F.DESCRICAO from PRODUTO inner join FAMILIA on P.IDFAMILIA = F.IDFAMILIA;
+
+#exibir descricao do produto e preco do produto e nome do fornecedor
+select PRODUTO.DESCRICAO, PRODUTO.PRECO, FORNECEDOR.IDFORNECEDOR, FORNECEDOR.NOME from PRODUTO inner join FORNECEDOR on PRODUTO.IDFORNECEDOR = FORNECEDOR.IDFORNECEDOR;
+
+#exibir descricao do produto e preco do produto e nome do fornecedor cujo valor seja maior que 1000
+select PRODUTO.DESCRICAO, PRODUTO.PRECO, FORNECEDOR.IDFORNECEDOR, FORNECEDOR.NOME from PRODUTO inner join FORNECEDOR on PRODUTO.IDFORNECEDOR = FORNECEDOR.IDFORNECEDOR where PRODUTO.PRECO > 1000;
+
+#agrupar por familia para apresentar a media dos precos
+select avg(P.PRECO) as media, F.IDFAMILIA, F.DESCRICAO from PRODUTO P inner join FAMILIA F on P.IDFAMILIA = F.IDFAMILIA group by F.IDFAMILIA;
+
+#mostrar nome do fornecedor e a quantidade total de produtos fornecido por cada fornecedor
+select F.NOME, count(P.QTDE) as 'total de produto' from FORNECEDOR F inner join PRODUTO P on F.IDFORNECEDOR = P.IDFORNECEDOR group by F.IDFORNECEDOR;
+
+#ligação mostrando as famílias sem produto cadastrado
+select P.IDPRODUTO, P.DESCRICAO,F.IDFAMILIA, F.DESCRICAO from PRODUTO P right join FAMILIA F on P.IDFAMILIA = F.IDFAMILIA;
+
+#ligação mostrando todos os fornecedores e a descrição dos respectivos produtos e mostrar também os fornecedores que não tem produto cadastrado
+select P.IDPRODUTO, P.DESCRICAO, F.IDFORNECEDOR, F.NOME from PRODUTO P right join FORNECEDOR F on P.IDFORNECEDOR = F.IDFORNECEDOR;
